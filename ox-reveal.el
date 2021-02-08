@@ -95,6 +95,7 @@
     (:reveal-multiplex-socketio-url "REVEAL_MULTIPLEX_SOCKETIO_URL" nil org-reveal-multiplex-socketio-url nil)
     (:reveal-slide-header "REVEAL_SLIDE_HEADER" nil org-reveal-slide-header t)
     (:reveal-slide-footer "REVEAL_SLIDE_FOOTER" nil org-reveal-slide-footer t)
+    (:reveal-slide-noheader "REVEAL_SLIDE_NOHEADER" nil org-reveal-slide-noheader t)
     (:reveal-plugins "REVEAL_PLUGINS" nil nil t)
     (:reveal-external-plugins "REVEAL_EXTERNAL_PLUGINS" nil nil newline)
     (:reveal-default-frag-style "REVEAL_DEFAULT_FRAG_STYLE" nil org-reveal-default-frag-style t)
@@ -246,6 +247,11 @@ embedded into Reveal.initialize()."
   "HTML content used as Reveal.js slide header"
   :group 'org-export-reveal
   :type 'string)
+
+(defcustom org-reveal-slide-noheader nil
+  "Boolean to indicate that the slide's title should be printed"
+  :group 'org-export-reveal
+  :type 'boolean)
 
 (defcustom org-reveal-global-header nil
   "If non nil, slide header defined in org-reveal-slide-header
@@ -501,6 +507,7 @@ holding contextual information."
 					"-"))
 	     (hlevel (org-reveal--get-hlevel info))
 	     (header (plist-get info :reveal-slide-header))
+	     (noheader (org-element-property :reveal-slide-noheader headline) )
 	     (header-div (when header (format "<div class=\"slide-header\">%s</div>\n" header)))
 	     (footer (plist-get info :reveal-slide-footer))
 	     (footer-div (when footer (format "<div class=\"slide-footer\">%s</div>\n" footer)))
@@ -533,15 +540,16 @@ holding contextual information."
          header-div
          ;; The HTML content of the headline
          ;; Strip the <div> tags, if any
-         (let ((html (org-html-headline headline contents info)))
-           (if (string-prefix-p "<div" html)
-               ;; Remove the first <div> and the last </div> tags from html
-               (concat "<"
-                       (mapconcat 'identity
-                                  (butlast (cdr (split-string html "<" t)))
-                                  "<"))
-             ;; Return the HTML content unchanged
-             html))
+         (unless noheader
+           (let ((html (org-html-headline headline contents info)))
+             (if (string-prefix-p "<div" html)
+                 ;; Remove the first <div> and the last </div> tags from html
+                 (concat "<"
+                         (mapconcat 'identity
+                                    (butlast (cdr (split-string html "<" t)))
+                                    "<"))
+               ;; Return the HTML content unchanged
+               html)))
          (if (and (= level 1)
                   (org-export-last-sibling-p headline info))
              ;; Last head 1. Close all slides.
