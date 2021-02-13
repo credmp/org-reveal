@@ -825,7 +825,8 @@ dependencies: [
                   search ("RevealSearch" . "search/search.js")
                   notes ("RevealNotes" . "notes/notes.js")
                   math ("RevealMath" . "math/math.js")
-                  zoom ("RevealZoom" . "zoom/zoom.js")))
+                  zoom ("RevealZoom" . "zoom/zoom.js")
+                  chalkboard ("RevealChalkboard" . "chalkboard/plugin.js")))
                (plugin-info (seq-filter 'identity
                                         (seq-map (lambda (p)
                                                    (plist-get available-plugins p))
